@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./mlruns:/app/mlruns
+    ports:
+      - "5000:5000"
+    command: ["--config", "config/config.yaml"]
+    env_file:
+      - .env
+
+  mlflow:
+    image: python:3.10-slim
+    volumes:
+      - ./mlruns:/mlruns
+    ports:
+      - "5000:5000"
+    command: >
+      bash -c "pip install mlflow && mlflow ui --host 0.0.0.0 --port 5000 --backend-store-uri /mlruns"
+    depends_on:
+      - app
